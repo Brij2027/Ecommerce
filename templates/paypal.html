@@ -1,0 +1,57 @@
+{%load static%}
+<html lang="en">
+
+<head>
+    <!-- Add meta tags for mobile and IE -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>PayPal payment</title>
+</head>
+
+<body>
+                    <form action="{% url 'cart:paymentdone' %}" method="post" style="display:none;">
+                    {%csrf_token%}
+                    <input name="prodlist" id="" type="text" value="{{prodlist}}">
+                    <button id = "pay" type="submit"></button>
+                    </form>
+    <center>
+    <h1 class="h1">Choose A Valid Payment Method</h1>
+    <div class="alert alert-success" id="paypal-button-container" style="display:table;margin-top:20%"></div>
+    </center>
+
+
+    <!-- Include the PayPal JavaScript SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AXFDdRKDZUtImBkwaqFxk-Mq217smEQp4KTU8bpe7pVPW06IHqBJiGZyZSvuuzGnpVzLAcBnFY36JB38&currency=USD"></script>
+
+    <script>
+
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+
+            // Set up the transaction
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: {{price}},
+                        }
+                    }]
+                });
+            },
+
+            // Finalize the transaction
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Show a success message to the buyer
+                    alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                    document.getElementById('pay').click();
+                });
+            }
+
+
+        }).render('#paypal-button-container');
+    </script>
+</body>
+
+</html>
+    

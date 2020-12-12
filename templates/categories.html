@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{%load static%}
+
+<!--category section-->
+<div style="overflow:hidden;background-color:white;">
+<h3 style="margin-top: 60px;">
+    {{category}}
+  <small class="text-muted">Find What's Trending In {{category}}</small>
+</h3>
+<div class="row">
+{%for j in page_obj%}
+<div class="col-sm-3">
+<div class="card" style="width:300px;margin:10px 10px 5px 5px;">
+<img src="{{j.image}}" class="img-thumbnail" style="height:300px;align-self:center;" onerror="this.onerror=null; this.src='{%static "images/noimage.jpg"%}'" alt="NO image">
+  <div class="card-body" style = "min-height:auto;">
+    <h5 class="card-title">{{j.name}}</h5>
+    <p class="card-text">${{j.price}}</p>
+    <a href="{%url 'product_page' j.id %}" class="btn btn-primary">view</a>
+  </div>
+</div>
+</div>
+{% endfor %}
+</div>
+<br>
+<center>
+{%if page_obj.has_previous and page_obj.has_next%}
+<div class = "card-header" style="border:0;background:white;">
+      <a  href = "{%url 'category' category page_obj.previous_page_number%}" class="btn btn-primary" style="margin-right:5px;" role="button">Previous page</a>
+      <a href = "{%url 'category' category page_obj.next_page_number%}" class="btn btn-primary" style="margin-left:5px;padding-left:12px;padding-right:12px;" role="button">Next page</a>
+  </div>
+{%elif page_obj.has_next%}
+<div class = "card-header" style="border:0;background:white;">
+      <a  href = "{%url 'category' category 1%}" class="btn btn-primary disabled" style="margin-right:5px;" role="button">Previous page</a>
+      <a href = "{%url 'category' category page_obj.next_page_number%}" class="btn btn-primary" style="margin-left:5px;padding-left:12px;padding-right:12px;" role="button">Next page</a>
+</div>
+{%elif page_obj.has_previous%}
+<div class = "card-header" style="border:0;background:white;">
+      <a  href = "{%url 'category' category page_obj.previous_page_number%}" class="btn btn-primary" style="margin-right:5px;" role="button">Previous page</a>
+      <a href = "{%url 'category' category 1%}" class="btn btn-primary disabled" style="margin-left:5px;padding-left:12px;padding-right:12px;" role="button">Next page</a>
+</div>
+{%endif%}
+</center>
+</div>
+
+{% endblock content %}

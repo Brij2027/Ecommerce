@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{%load static%}
+<div class = "container-fluid" style="margin-top:55px;margin-bottom:10px;">
+<center>
+<div class = "container" style="display:grid;background-color:white;">
+<img  src="{{productobj.image}}" style="height:500px;" onerror="this.onerror=null; this.src='{%static "images/noimage.jpg"%}'">
+<h1>{{productobj.name}}</h1>
+<h3>${{productobj.price}}</h3>
+<div>
+{%if productobj.availability == "TRUE"%}
+    <h4>available for delivery</h4>
+    <a class="btn btn-primary" href= "{% url 'cart:show_cart' productobj.id %}" role="button" style="margin:10px 5px;">
+        Add To Cart 
+    </a>
+    <a class="btn btn-primary" href="{% url 'cart:show_cart' productobj.id %}" role="button" style="margin:5px 10px;">
+        Buy Now
+    </a>
+{%else%}
+    <h4>not available</h4>
+    <button class="btn btn-primary disabled">
+        Add To Cart
+    </button>
+    <button class="btn btn-primary disabled">
+            Buy Now
+    </button>
+{%endif%}
+</div>
+
+<!--rating system-->
+<br>
+<div id="totalrating">
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span>({{rating.ratingusers}})</span>
+<button type="button" style="display:none;" id="rating" class="btn btn-primary">{{rating.rating}}</button>
+</div>
+
+<!--comment review section-->
+
+<div class="container bg-white" style="width:95%;">
+{% if haspurchased %}
+  <div class = "card-header" style="border:0;text-align:left;background:white;">
+      <button  id="showcomment" class="btn btn-primary" style="margin-bottom:0;" role="button">comments</button>
+      <button  id="showaddcomment" class="btn btn-primary" style="margin-bottom:0;" role="button">addcomment</button>
+  </div>
+{% else %}
+  <div class = "card-header" style="border:0;text-align:left;background:white;">
+      <button  id="showcomment" class="btn btn-primary" style="margin-bottom:0;" role="button">comments</button>
+      <button  id="nocomment" class="btn btn-primary disabled" style="margin-bottom:0;" role="button">addcomment</button>
+  </div>
+{% endif %}
+  <div class="container comment" style="width:100%">
+  <!--ajax generated data-->
+  </div>
+
+  <div id = "addcommentform" class="container-fluid">
+  <form id = "form" name="form">
+  {% csrf_token %}
+  <div class="form-group row">
+    <label  class="col-sm-2 col-form-label">comment</label>
+    <textarea class="form-control" id="review" style="overflow:hidden;width:74%" rows="3"></textarea>
+  </div>
+
+  <div class="form-group row">
+  <label  class="col-sm-2 col-form-label">uploadmedia</label>
+  <div class="form-group-row">
+    <input type="file" class="form-control" style="overflow:hidden;margin-left:16px" id="uploadmedia">
+    <label class="custom-file-label">Choose image</label>
+  </div>
+  </div>
+  <div class="form-group row">
+    <div class="col-sm-10">
+    <center>
+      <button  id = "commbtn" type="button" class="btn btn-primary">submit</button>
+    </center>
+    </div>
+  </div>
+</form>
+  </div>
+</div>
+
+<script>
+$('#addcommentform').hide();
+$(document).ready(function(e){
+    //rating function calling
+    setrating();
+    //comment hiding logic
+  $('#showcomment').click(function(){
+    $('.comment').show();
+    $('#addcommentform').hide();
+  });
+    $('#showaddcomment').click(function(){
+    $('#addcommentform').show();
+    $('.comment').hide();
+  });
+
+
+  $.ajax({
+    url: "{% url 'save' productobj.id %}",
+    method:"GET",
+    success:function(data){
+    // data generating
+    var output = "";
+    for (i=0;i<data.length;i++){
+        output =`<div class="card text"><div class="card-body">
+          <h5 class="card-title username">${data[i].user}</h5>
+          <p class="card-text commcontent">${data[i].review}</p></div>
+          <div class="card-footer text-muted commdate">${data[i].date}</div></div>`
+
+        $('.comment').append(output);
+    }
+    }
+  });
+
+    
+    $('#commbtn').click(function(){
+      //e.preventDefault();
+      var comm = $('#review').val();
+      var upmedia = $('#uploadmedia').val();
+      var csr = "{{csrf_token}}";
+      $.ajax({
+        url: "{% url 'save' productobj.id %}",
+        method:"POST",
+        data:{
+          commentis:comm,
+          media:upmedia,
+          csrfmiddlewaretoken:csr
+        },
+        success:function(data){
+          form.reset();
+          //filling data
+          var output = "";
+          output =`<div class="card text"><div class="card-body">
+            <h5 class="card-title username">${data.user}</h5>
+            <p class="card-text commcontent">${data.review}</p></div>
+            <div class="card-footer text-muted commdate">${data.date}</div></div>`
+          $('.comment').append(output);
+
+          $('#showcomment').click();
+          console.log("working");
+        }
+      });
+    })
+
+    function setrating(){
+      var rating = $('#rating').text();
+      for (var i=0;i<rating;i++){
+        $('.fa-star').eq(i).css("color","orange");
+      }
+    }
+
+})
+</script>
+{%endblock content%}

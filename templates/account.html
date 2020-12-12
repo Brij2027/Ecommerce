@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{%load static%}
+
+<div class="container" style="margin-top:60px;background:white;">
+<div class="container-fluid" style="display:inline-flex;">
+
+        <img id = "male-image"  class="rounded-circle img-thumbnail" style="width:200px;float:left;display:none;" src='{%static "images/male_noimage.jpg"%}'  onerror="this.onerror=null; this.src='{%static "images/male_noimage.jpg"%}'">
+        <img id = "female-image" class="rounded-circle img-thumbnail" style="width:200px;float:left;display:none;" src='{%static "images/female_noimage.jpg"%}'  onerror="this.onerror=null; this.src='{%static "images/female_noimage.jpg"%}'">
+
+    <div style="margin-top: 100px;margin-left: 20px;">
+    <h1 id = "userinfo" class="h3"></h1>
+    <h1 id = "phoneinfo" class="h3"></h1>
+    </div>
+</div>
+<div class="container-fluid">
+<h3>
+    Profile Settings
+  <small class="text-muted">Change Your Profile Here</small>
+</h3>
+<br>
+    <h1 id = "username" class="h3"><span>{{profileobj.user.username}}</span><i class="fa fa-pencil" aria-hidden="true"></i></h1>
+    <h1 id = "phone" class="h3"><span>{{profileobj.phone}}</span><i class="fa fa-pencil" aria-hidden="true"></i></h1>
+    <h1 id = "gender" class="h3"><span>{{profileobj.gender}}</span><i class="fa fa-pencil" aria-hidden="true"></i></h1>
+    <h1 id = "my_address" class="h3"><span>{{profileobj.my_address}}</span><i class="fa fa-pencil" aria-hidden="true"></i></h1>
+</div>
+
+
+<div class="container-fluid" style="padding-bottom:20px;margin-top:40px;">
+<h3>
+    Your Orders
+  <small class="text-muted">See Order Details Here</small>
+</h3>
+<br>
+<center>
+{%if myorderobj%}
+<table class="table table-hover">
+{%for order in myorderobj%}
+<tr>
+<th scope="col">
+<img class="img-thumbnail" style="height:200px;" onerror="this.onerror=null; this.src='{%static "images/noimage.jpg"%}'" src="{{order.myproduct.image}}">
+</th>
+<th class = "ratingproduct" scope="col">
+{{order.myproduct.name}}:{{order.myproduct.id}}
+<br>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<span class="fa fa-star"></span>
+<button type="button" style="display:none;" id="ratebtn" class="btn btn-primary">{{order.myrating}}</button>
+</th>
+<th scope="col">
+{{order.myproduct.price}}
+</th>
+<th scope="col">
+<a name="" id="" class="btn btn-primary" href="{%url 'account:order_page' order.myproduct.id %}" role="button">View More Details</a>
+</th>
+</tr>
+{%endfor%}
+</table>
+{%else%}
+<img src="{%static 'images/noorders.png'%}">
+<h1 class="h1">You Haven't Ordered Yet</h1>
+<a class="btn btn-primary" href="/" role="button">Order Now</a>
+{%endif%}
+</center>
+</div>
+</div>
+<script>
+$(document).ready(function(e){
+    $.ajax({
+    url: "{% url 'account:get_page' %}",
+    method:"GET",
+    success:function(data){
+        console.log("done")
+
+        if (data.gender == "male" || data.gender == "Male"){
+            $('#male-image').css("display","block");
+            $('#female-image').css("display","none");
+            $('#male-image').attr("src",`${data.image}`);
+        }
+        else{
+            $('#female-image').css("display","block");
+            $('#male-image').css("display","none");
+            $('#female-image').attr("src",`${data.image}`);
+        }
+
+
+        $('#userinfo').html(`${data.username}`);
+        $('#phoneinfo').html(`${data.phone}`);
+
+        $('#username span').html(`${data.username}`);
+        $('#gender span').html(`${data.gender}`);
+        $('#phone span').html(`${data.phone}`);
+        $('#my_address span').html(`${data.address}`);
+
+        giveinitialrating();
+
+        }
+
+    });
+
+
+
+    $('.fa-pencil').bind("click",function(){
+        var colname = $(this).parent().attr("id");
+        var changedval = window.prompt("Input New value",$(this).parent().text())
+        if (changedval!=null && changedval.length != 0){
+            $.ajax({
+                url:"{%url 'account:change_page' %}",
+                method:"POST",
+                data:{
+                    change_val:changedval,
+                    col_name:colname,
+                    csrfmiddlewaretoken:"{{ csrf_token }}",
+                },
+                success:function(data){
+                    console.log(data)
+                          $.ajax({
+                                url: "{% url 'account:get_page' %}",
+                                method:"GET",
+                                success:function(data){
+                                    console.log("done")
+                                    //for image
+                                    if (data.gender == "male" || data.gender == "Male"){
+                                        $('#male-image').css("display","block");
+                                        $('#female-image').css("display","none");
+                                        $('#male-image').attr('src',`${data.image}`);
+                                    }
+                                    else{
+                                        $('#female-image').css("display","block");
+                                        $('#male-image').css("display","none");
+                                        $('#female-image').attr("src",`${data.image}`);
+                                    }
+
+                                    //for basic info
+                                    $('#userinfo').html(`${data.username}`);
+                                    $('#phoneinfo').html(`${data.phone}`);
+
+                                    $('#username span').html(`${data.username}`);
+                                    $('#gender span').html(`${data.gender}`);
+                                    $('#phone span').html(`${data.phone}`);
+                                    $('#my_address span').html(`${data.address}`);
+                                    }
+                                });
+                }
+            });
+        }
+        else{
+            console.log("no ajax");
+        }
+    });   
+
+    $('.fa-star').bind("click",function(){
+        var index = $(this).index();
+        var parentindex = $(this).parent().index('.ratingproduct');
+        var productid = $(this).parent().text();
+        var prodlength = $('.ratingproduct').length
+        $.ajax({
+            url:"{% url 'account:set_rating' %}",
+            method:"POST",
+            data:{
+                csrfmiddlewaretoken:"{{csrf_token}}",
+                index:index+1,
+                length:prodlength,
+                productid:productid,
+            },
+            success:function(data){
+                console.log(data);
+                console.log(parentindex);
+                $('.ratingproduct').eq(parentindex).find("*").css("color","black");
+                for (var i=1;i<data;i++){
+                    $('.ratingproduct').eq(parentindex).children().eq(i).css("color","orange");
+                }
+            }
+        })
+    })
+
+    function giveinitialrating(){
+        var parentlength = $('.ratingproduct').length;
+        for (var i=0;i<parentlength;i++){
+            rating = $('.ratingproduct').eq(i).find('#ratebtn').text();
+            for (var j= 1;j<=rating;j++){
+                $('.ratingproduct').eq(i).children().eq(j).css("color","orange");
+            }
+            
+        }
+    } 
+})
+</script>
+
+{% endblock content %}
