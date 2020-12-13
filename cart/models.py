@@ -5,7 +5,7 @@ from home.models import product
 # Create your models here.
 class cartproduct(models.Model):
     serial = models.AutoField(primary_key=True)
-    productobj = models.ForeignKey(product,on_delete=DO_NOTHING)
+    productobj = models.ForeignKey(product,on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
 
 

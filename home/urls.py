@@ -11,6 +11,7 @@ urlpatterns = [
     path('save/<int:id>/',views.save_data,name='save'),
     path('categories/<str:category>/<int:page_number>',views.category_data,name='category'),
     path('search/<str:q>/<int:page_number>',views.search_data,name='search'),
-    
-    
+      
 ]
+
+

@@ -19,6 +19,9 @@ from register import urls as register_url
 from home import urls as home_url
 from account import urls as account_url
 from cart import urls as cart_url
+from django.conf.urls.static import static
+from Ecommerce import settings
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,3 +31,5 @@ urlpatterns = [
     path('account/',include(account_url)),
     path('cart/',include(cart_url)),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

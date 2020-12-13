@@ -6,7 +6,7 @@ from django.db.models import DO_NOTHING
 # Create your models here.
 
 class profile(models.Model):
-    user = models.OneToOneField(User,primary_key = True,on_delete= DO_NOTHING)
+    user = models.OneToOneField(User,primary_key = True,on_delete=models.CASCADE)
     gender = models.CharField(blank =True,max_length=8)
     phone = models.IntegerField(blank=True,default=0)
     my_address = models.CharField(max_length=100,blank=True)

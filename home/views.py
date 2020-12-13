@@ -34,7 +34,10 @@ def home(requests):
 def products(requests,id):
     productobj = product.objects.get(id=id)
     commentobj = comment.objects.filter(product_id=id)
-    ratingobj = rating.objects.get(product=productobj)
+    if (rating.objects.filter(product=productobj).count()==0):
+        ratingobj = 0
+    else:
+        ratingobj = rating.objects.get(product=productobj)
     haspurchased = myorder.objects.filter(myproduct=productobj)
     context = {
         "productobj":productobj,
@@ -81,9 +84,10 @@ def search_data(requests,q,page_number):
     if requests.method == "POST":
         temp_query = product.objects.filter(name__regex = '^'+q )
         if temp_query.count() == 0:
-            pass
-        paginator = Paginator(temp_query,12)
-        page_obj = paginator.get_page(page_number)
+            page_obj=0
+        else:
+            paginator = Paginator(temp_query,12)
+            page_obj = paginator.get_page(page_number)
         context = {
             "page_obj":page_obj,
             "val":q,

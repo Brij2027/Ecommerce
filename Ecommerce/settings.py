@@ -1,4 +1,3 @@
-import django_heroku
 """
 Django settings for Ecommerce project.
 
@@ -17,6 +16,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '+l5)dmr3bvexm*m)#7z-*=n54ax+90hdfr$o5w8wsvus79t=+e'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -124,7 +124,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
+
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static")
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
@@ -148,4 +149,5 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
-django_heroku.settings(locals())
+
+
